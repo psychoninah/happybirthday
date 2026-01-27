@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Birthday Surprise 🌸</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    font-family: "Comic Sans MS", cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .center { text-align: center; }
+
+  .cake {
+    font-size: 130px;
+    animation: bounce 1.5s infinite;
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .gifts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 25px;
+  }
+
+  .gift {
+    font-size: 95px;
+    cursor: pointer;
+    animation: shake 1.5s infinite;
+    transition: transform 0.3s ease;
+  }
+
+  .gift:hover {
+    transform: scale(1.15);
+  }
+
+  @keyframes shake {
+    0%,100% { transform: rotate(0); }
+    25% { transform: rotate(6deg); }
+    75% { transform: rotate(-6deg); }
+  }
+
+  .content {
+    display: none;
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    max-width: 380px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    animation: pop 0.6s ease;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  h2 { color: #ff4081; margin-top: 10px; }
+
+  p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: left;
+    white-space: pre-line;
+  }
+
+  button {
+    margin-top: 15px;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #ff4081;
+    color: white;
+    cursor: pointer;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) {
+    .cake { font-size: 110px; }
+    .gift { font-size: 85px; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Confetti -->
+<canvas id="confetti"></canvas>
+
+<div class="center" id="main">
+  <div class="cake">🎂</div>
+  <h2>Happy Birthday 🌸</h2>
+  <p>Choose a gift — each one comes with a little surprise 🎁</p>
+
+  <div class="gifts">
+    <div class="gift" onclick="openGift(0)">🎁</div>
+    <div class="gift" onclick="openGift(1)">🎁</div>
+    <div class="gift" onclick="openGift(2)">🎁</div>
+    <div class="gift" onclick="openGift(3)">🎁</div>
+    <div class="gift" onclick="openGift(4)">🎁</div>
+    <div class="gift" onclick="openGift(5)">🎁</div>
+  </div>
+</div>
+
+<div class="center content" id="content">
+  <div id="emoji" style="font-size:60px;"></div>
+  <h2 id="title"></h2>
+  <p id="message"></p>
+  <button onclick="goBack()">🔙 Back</button>
+</div>
+<script>
+  // Soft "getting-to-know-you" gifts with your new letter
+  const gifts = [
+    {
+      emoji: "💌",
+      title: "A Special Letter",
+      message: `I hope your day is filled with joy, laughter, and all the little things that make you happy. Even though we’re just getting to know each other, I want you to know that I’m glad our paths crossed and I’m excited to learn more about you at our own pace.
+
+Wishing you a year ahead full of new experiences, success, and plenty of reasons to smile. I hope this birthday is just the beginning of an amazing journey for you!
+
+Enjoy your special day to the fullest.`
+    },
+    {
+      emoji: "🌹",
+      title: "A Single Rose",
+      message: `This rose is simple just like how I want things to be between us.
+No pressure, no rush.
+
+Just appreciation for who you are, and a quiet “I like getting to know you” wrapped in petals.`
+    },
+    {
+  emoji: "🌿",
+  title: "A Walk Together",
+  message: `Imagine a quiet walk,
+no rush, no destination.
+
+Just fresh air, small talks,
+and getting to know each other
+one step at a time.`
+},
+    {
+      emoji: "🙂",
+      title: "A Gentle Compliment",
+      message: `I don’t know everything about you yet,
+but I already admire how you carry yourself.
+
+You seem like someone who brings good energy into a room,
+and I hope you know how refreshing that is.`
+    },
+    {
+      emoji: "✨",
+      title: "Curiosity",
+      message: `I’m curious about the things that make you smile,
+the songs you repeat,
+the little habits you don’t notice about yourself.
+
+No expectations just interest, the good kind.`
+    },
+    {
+      emoji: "🎈",
+      title: "This Moment",
+      message: `For now, let’s just enjoy this moment.
+
+Getting to know each other.
+Laughing when it feels right.
+Taking things as they come.
+
+Happy birthday wishing you all the good moments ahead.`
+    }
+  ];
+
+  function openGift(i) {
+    main.style.display = "none";
+    content.style.display = "block";
+    emoji.innerText = gifts[i].emoji;
+    title.innerText = gifts[i].title;
+    message.innerText = gifts[i].message;
+
+  // Start background music after user interaction
+const player = document.getElementById("ytPlayer");
+if (!player.src.includes("autoplay=1")) {
+  player.src += "&autoplay=1";
+}
+
+    startConfetti();
+  }
+
+  function goBack() {
+    content.style.display = "none";
+    main.style.display = "block";
+  }
+
+  // Slow confetti 
+ const canvas = document.getElementById("confetti"); 
+ const ctx = canvas.getContext("2d"); 
+ canvas.width = innerWidth; 
+ canvas.height = innerHeight; 
+ let confetti = []; 
+ const colors = ["#ff4081","#ffd740","#40c4ff","#69f0ae","#7c4dff"]; 
+ function startConfetti() { 
+  confetti = []; 
+  for (let i = 0; i < 100; i++) { 
+    confetti.push({ 
+      x: Math.random() * canvas.width, 
+      y: Math.random() * canvas.height, 
+      r: Math.random() * 6 + 4, 
+      c: colors[Math.floor(Math.random()*colors.length)], 
+      s: Math.random() * 0.5 + 0.2 // slower 
+     }); 
+      } 
+      animate(); 
+    } 
+      
+    function animate() { 
+      ctx.clearRect(0,0,canvas.width,canvas.height); 
+      confetti.forEach(p => { ctx.beginPath(); 
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2); 
+        ctx.fillStyle = p.c; 
+        ctx.fill(); p.y += p.s; 
+        if(p.y > canvas.height) p.y = 0; 
+      }); 
+      
+        requestAnimationFrame(animate); 
+      } 
+  </script>
+
+</script>
+
+</body>
+</html>
